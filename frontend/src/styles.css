@@ -1,0 +1,821 @@
+/* ---------- Design tokens ---------- */
+:root {
+  --accent: #0866ff;
+  --accent-hover: #0757d9;
+  --accent-soft: rgba(8, 102, 255, 0.1);
+  --danger: #e41e3f;
+
+  --bg: #f1f3f6;
+  --surface: #ffffff;
+  --surface-2: #f1f3f6;
+  --text: #1c1e21;
+  --text-2: #65676b;
+  --border: rgba(0, 0, 0, 0.08);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 28px rgba(0, 0, 0, 0.07);
+
+  --camera-bg: #0b0d10;
+  --camera-text: #f5f6f7;
+  --camera-text-2: rgba(245, 246, 247, 0.68);
+
+  --radius-sm: 12px;
+  --radius: 16px;
+  --radius-lg: 20px;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --accent-soft: rgba(56, 132, 255, 0.16);
+    --bg: #0e0f11;
+    --surface: #18191b;
+    --surface-2: #242528;
+    --text: #e4e6eb;
+    --text-2: #a8abaf;
+    --border: rgba(255, 255, 255, 0.08);
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 28px rgba(0, 0, 0, 0.35);
+    --camera-bg: #000000;
+  }
+}
+
+/* ---------- Base ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-size: 15px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overflow: hidden;
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ---------- Layout ---------- */
+.app {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 400px;
+  gap: 16px;
+  height: 100vh;
+  height: 100dvh;
+  padding: 16px;
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 15px;
+  transition: background-color 0.2s var(--ease), transform 0.15s var(--ease), box-shadow 0.2s var(--ease);
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn--primary {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(8, 102, 255, 0.35);
+}
+
+.btn--primary:hover {
+  background: var(--accent-hover);
+}
+
+.btn--lg {
+  height: 52px;
+  padding: 0 26px;
+  font-size: 16px;
+}
+
+.btn--glass {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.btn--glass:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.stop-square {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--danger);
+}
+
+/* ---------- Camera ---------- */
+.camera {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--camera-bg);
+  color: var(--camera-text);
+  box-shadow: var(--shadow);
+}
+
+.camera__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.4s var(--ease);
+}
+
+.camera.is-live .camera__video {
+  opacity: 1;
+}
+
+.camera__topbar {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 18px;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.45), transparent);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand__name {
+  font-weight: 700;
+  font-size: 17px;
+  letter-spacing: -0.01em;
+}
+
+.camera__chips {
+  display: flex;
+  gap: 8px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  animation: fade-in 0.3s var(--ease);
+}
+
+.chip--live {
+  letter-spacing: 0.06em;
+}
+
+.chip__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--danger);
+  animation: blink 1.4s ease-in-out infinite;
+}
+
+.camera-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 72px 24px 32px;
+  text-align: center;
+  animation: fade-in 0.35s var(--ease);
+}
+
+.camera-placeholder__icon {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 8px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--camera-text);
+}
+
+.camera-placeholder__icon--warn {
+  color: #ff8a9b;
+  background: rgba(228, 30, 63, 0.14);
+}
+
+.camera-placeholder__title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.camera-placeholder__text {
+  max-width: 340px;
+  margin: 0 0 16px;
+  color: var(--camera-text-2);
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 12px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.15);
+  border-top-color: var(--accent);
+  animation: spin 0.8s linear infinite;
+}
+
+.camera__bottombar {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 2;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 18px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.45), transparent);
+  animation: fade-in 0.3s var(--ease);
+}
+
+.frame-preview {
+  position: absolute;
+  left: 18px;
+  bottom: 18px;
+  margin: 0;
+  width: 84px;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.frame-preview img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.frame-preview figcaption {
+  padding: 2px 6px;
+  font-size: 10px;
+  font-weight: 600;
+  text-align: center;
+  color: var(--camera-text-2);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Sidebar ---------- */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.sheet-handle {
+  display: none;
+}
+
+.sidebar__header {
+  padding: 20px 22px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar__header h1 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.sidebar__header p {
+  margin: 2px 0 0;
+  color: var(--text-2);
+  font-size: 13px;
+}
+
+/* ---------- Messages ---------- */
+.message-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 16px;
+}
+
+.messages {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.message {
+  display: flex;
+  animation: message-in 0.25s var(--ease);
+}
+
+.message--user {
+  justify-content: flex-end;
+}
+
+.message__bubble {
+  max-width: 85%;
+  padding: 10px 14px;
+  border-radius: 18px;
+  overflow-wrap: anywhere;
+}
+
+.message__bubble p {
+  margin: 0;
+}
+
+.message--user .message__bubble {
+  background: var(--accent);
+  color: #fff;
+  border-bottom-right-radius: 6px;
+}
+
+.message--assistant .message__bubble {
+  background: var(--surface-2);
+  color: var(--text);
+  border-bottom-left-radius: 6px;
+}
+
+.message--error .message__bubble {
+  color: var(--danger);
+}
+
+.message--live .message__bubble {
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-style: italic;
+}
+
+@media (prefers-color-scheme: dark) {
+  .message--live .message__bubble {
+    color: #7fb0ff;
+  }
+}
+
+.message__voice-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}
+
+.voice-clip {
+  display: block;
+  width: 220px;
+  max-width: 100%;
+  height: 36px;
+  margin-top: 8px;
+  border-radius: 999px;
+}
+
+.typing {
+  display: flex;
+  gap: 4px;
+  padding: 14px 16px;
+}
+
+.typing span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--text-2);
+  opacity: 0.4;
+  animation: typing 1.2s ease-in-out infinite;
+}
+
+.typing span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.typing span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 100%;
+  padding: 24px;
+  text-align: center;
+}
+
+.empty-state__title {
+  margin: 0;
+  font-weight: 600;
+}
+
+.empty-state__hint {
+  margin: 0;
+  color: var(--text-2);
+  font-size: 14px;
+}
+
+.empty-state__hint span {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 500;
+}
+
+/* ---------- Composer ---------- */
+.composer {
+  padding: 12px 16px 16px;
+  padding-bottom: max(16px, env(safe-area-inset-bottom));
+  border-top: 1px solid var(--border);
+}
+
+.composer__error {
+  margin: 0 0 10px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  background: rgba(228, 30, 63, 0.1);
+  color: var(--danger);
+  font-size: 13px;
+}
+
+.composer__row {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.composer__mic {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding-top: 6px;
+}
+
+.composer__mic-hint {
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.composer__form {
+  display: flex;
+  gap: 8px;
+}
+
+.composer__form input {
+  flex: 1;
+  min-width: 0;
+  height: 44px;
+  padding: 0 16px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: var(--surface-2);
+  font-size: 16px; /* 16px stops iOS from zooming on focus */
+  transition: border-color 0.2s var(--ease), background-color 0.2s var(--ease);
+}
+
+.composer__form input::placeholder {
+  color: var(--text-2);
+}
+
+.composer__form input:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: var(--surface);
+}
+
+.send-button {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  transition: opacity 0.2s var(--ease), transform 0.15s var(--ease), background-color 0.2s var(--ease);
+}
+
+.send-button:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.send-button:active:not(:disabled) {
+  transform: scale(0.92);
+}
+
+.send-button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* ---------- Mic button ---------- */
+.mic-button {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 6px 20px rgba(8, 102, 255, 0.35);
+  transition: background-color 0.25s var(--ease), transform 0.15s var(--ease), box-shadow 0.25s var(--ease);
+}
+
+.mic-button:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.mic-button:active:not(:disabled) {
+  transform: scale(0.94);
+}
+
+.mic-button:disabled {
+  cursor: default;
+}
+
+.mic-button:disabled:not(.is-busy) {
+  opacity: 0.4;
+  box-shadow: none;
+}
+
+.mic-button.is-busy {
+  opacity: 0.75;
+}
+
+.mic-button.is-recording {
+  background: var(--danger);
+  box-shadow: 0 6px 20px rgba(228, 30, 63, 0.35);
+}
+
+.mic-button.is-recording:hover {
+  background: #c9152f;
+}
+
+/* Two expanding rings while recording */
+.mic-button.is-recording::before,
+.mic-button.is-recording::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--danger);
+  z-index: -1;
+  animation: pulse 1.6s ease-out infinite;
+}
+
+.mic-button.is-recording::after {
+  animation-delay: 0.8s;
+}
+
+.mic-button svg {
+  position: relative;
+}
+
+/* ---------- Animations ---------- */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.45;
+  }
+  100% {
+    transform: scale(1.7);
+    opacity: 0;
+  }
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes typing {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-4px);
+    opacity: 0.9;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes message-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------- Mobile: sidebar becomes a bottom sheet ---------- */
+@media (max-width: 767px) {
+  .app {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 0;
+  }
+
+  .camera {
+    flex: 0 0 52%;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .camera__topbar {
+    padding: 12px 14px;
+    padding-top: max(12px, env(safe-area-inset-top));
+  }
+
+  /* Keep controls clear of the sheet that overlaps the camera */
+  .camera__bottombar {
+    padding: 14px 14px 36px;
+  }
+
+  .frame-preview {
+    left: 14px;
+    bottom: 36px;
+    width: 64px;
+  }
+
+  .sidebar {
+    position: relative;
+    z-index: 3;
+    flex: 1;
+    margin-top: -20px;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.18);
+  }
+
+  .sheet-handle {
+    display: block;
+    width: 36px;
+    height: 4px;
+    margin: 8px auto 0;
+    border-radius: 999px;
+    background: var(--border);
+  }
+
+  .sidebar__header {
+    padding: 8px 18px 10px;
+  }
+
+  .sidebar__header h1 {
+    font-size: 16px;
+  }
+
+  .sidebar__header p {
+    display: none;
+  }
+
+  .message-list {
+    padding: 12px 14px;
+  }
+
+  .composer {
+    padding: 10px 12px;
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+  }
+
+  /* Mic sits beside the text field to save vertical space */
+  .composer__row {
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .composer__mic {
+    padding-top: 0;
+  }
+
+  .composer__mic-hint {
+    display: none;
+  }
+
+  .composer__form {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .mic-button {
+    width: 56px;
+    height: 56px;
+  }
+
+  .mic-button svg {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  /* Keep a static "recording" ring instead of the pulse */
+  .mic-button.is-recording::before {
+    animation: none;
+    transform: scale(1.25);
+    opacity: 0.25;
+  }
+}
