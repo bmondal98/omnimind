@@ -4,7 +4,7 @@ import MicButton from './MicButton.jsx';
 import { SendIcon } from './Icons.jsx';
 import { useVoiceInput } from '../hooks/useVoiceInput.js';
 
-export default function ChatSidebar({ messages, isThinking, onSend }) {
+export default function ChatSidebar({ messages, isThinking, onSend, isVisible }) {
   const [draft, setDraft] = useState('');
 
   const handleVoiceResult = useCallback(
@@ -34,14 +34,8 @@ export default function ChatSidebar({ messages, isThinking, onSend }) {
           : 'Tap to ask';
 
   return (
-    <aside className="sidebar" aria-label="Chat">
-      <div className="sheet-handle" aria-hidden="true" />
-      <header className="sidebar__header">
-        <h1>Ask OmniMind</h1>
-        <p>Your visual memory assistant</p>
-      </header>
-
-      <MessageList messages={messages} isThinking={isThinking} liveTranscript={liveTranscript} />
+    <>
+      <MessageList messages={messages} isThinking={isThinking} liveTranscript={liveTranscript} isVisible={isVisible} />
 
       <div className="composer">
         {voice.error && (
@@ -74,6 +68,6 @@ export default function ChatSidebar({ messages, isThinking, onSend }) {
           </form>
         </div>
       </div>
-    </aside>
+    </>
   );
 }

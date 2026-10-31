@@ -35,14 +35,14 @@ function Message({ message }) {
 /**
  * liveTranscript: string while the user is speaking, otherwise null.
  */
-export default function MessageList({ messages, isThinking, liveTranscript }) {
+export default function MessageList({ messages, isThinking, liveTranscript, isVisible }) {
   const scrollRef = useRef(null);
 
-  // Keep the newest content in view.
+  // Keep the newest content in view, including after returning from another tab.
   useEffect(() => {
     const el = scrollRef.current;
     if (el) el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
-  }, [messages, isThinking, liveTranscript]);
+  }, [messages, isThinking, liveTranscript, isVisible]);
 
   const isEmpty = messages.length === 0 && liveTranscript === null && !isThinking;
 
@@ -50,9 +50,9 @@ export default function MessageList({ messages, isThinking, liveTranscript }) {
     <div className="message-list" ref={scrollRef}>
       {isEmpty ? (
         <div className="empty-state">
-          <p className="empty-state__title">Ask about anything you've seen</p>
+          <p className="empty-state__title">Ask about your home</p>
           <p className="empty-state__hint">
-            Try asking <span>“Where did I leave my keys?”</span>
+            Try asking <span>“Is everything okay at home?”</span>
           </p>
         </div>
       ) : (

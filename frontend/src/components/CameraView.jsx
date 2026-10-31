@@ -1,5 +1,6 @@
+import HazardBanner from './HazardBanner.jsx';
 import Logo from './Logo.jsx';
-import { AlertIcon, CameraIcon, CameraOffIcon } from './Icons.jsx';
+import { AlertIcon, CameraIcon, CameraOffIcon, EyeIcon } from './Icons.jsx';
 
 // Centered overlay content for every non-live camera state.
 function CameraPlaceholder({ status, error, onStart }) {
@@ -51,9 +52,9 @@ function CameraPlaceholder({ status, error, onStart }) {
       <div className="camera-placeholder__icon">
         <CameraIcon width={28} height={28} />
       </div>
-      <p className="camera-placeholder__title">Show OmniMind your world</p>
+      <p className="camera-placeholder__title">OmniMind watches over your home</p>
       <p className="camera-placeholder__text">
-        Start your camera and OmniMind will remember what you see.
+        Start your camera and OmniMind will look out for falls, fire, leaks and intruders.
       </p>
       <button type="button" className="btn btn--primary btn--lg" onClick={onStart}>
         <CameraIcon /> Start camera
@@ -62,12 +63,16 @@ function CameraPlaceholder({ status, error, onStart }) {
   );
 }
 
-export default function CameraView({ camera, frameCount, lastFrame }) {
+export default function CameraView({ camera, capturedCount, sentCount, lastFrame, detection }) {
   const { videoRef, status, error, start, stop } = camera;
   const isLive = status === 'live';
+  const isCritical = detection?.severity === 'critical';
 
   return (
-    <section className={`camera ${isLive ? 'is-live' : ''}`} aria-label="Camera">
+    <section
+      className={`camera ${isLive ? 'is-live' : ''} ${detection ? 'has-hazard' : ''} ${isCritical ? 'is-critical' : ''}`}
+      aria-label="Camera"
+    >
       {/* Always mounted so the stream can attach as soon as it arrives. */}
       <video ref={videoRef} className="camera__video" autoPlay playsInline muted />
 
@@ -82,14 +87,19 @@ export default function CameraView({ camera, frameCount, lastFrame }) {
             <span className="chip chip--live">
               <span className="chip__dot" aria-hidden="true" /> LIVE
             </span>
-            <span className="chip" aria-live="polite">
-              {frameCount} {frameCount === 1 ? 'frame' : 'frames'}
+            <span className="chip chip--monitoring">
+              <EyeIcon width={14} height={14} /> Monitoring
+            </span>
+            <span className="chip">
+              sent {sentCount} / captured {capturedCount}
             </span>
           </div>
         )}
       </header>
 
       {!isLive && <CameraPlaceholder status={status} error={error} onStart={start} />}
+
+      {detection && <HazardBanner detection={detection} />}
 
       {isLive && (
         <div className="camera__bottombar">
