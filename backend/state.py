@@ -148,6 +148,7 @@ class StateEngine:
             "started_at": None,
             "finished_at": None,
             "transcript": None,
+            "outcome_label": None,
             **fields,
         }
         self._escalation["steps"].append(step)
@@ -288,6 +289,7 @@ class StateEngine:
                 "outcome": {
                     "status": "success",
                     "message": "Simulation: nobody picked up; voicemail left. No real call was placed.",
+                    "outcome_label": "No answer",
                     "transcript": [{"speaker": "OmniMind (simulated)", "text": f"Simulated voicemail: Hello {owner}. {message} Please confirm you are safe, or the simulation will contact your emergency contacts."}],
                 },
             },
@@ -312,6 +314,7 @@ class StateEngine:
                 else {
                     "status": "success",
                     "message": f"Simulation: {name} answered, but is 25 minutes away. No real call was placed.",
+                    "outcome_label": "Answered, can't come",
                     "transcript": [
                         {"speaker": "OmniMind (simulated)", "text": f"Simulated call: Hello {name}, calling on behalf of {owner}. {message} The address is {address}. Can you get there now?"},
                         {"speaker": f"{name} (simulated)", "text": "Simulated response: I'm 25 minutes away. Please send help."},

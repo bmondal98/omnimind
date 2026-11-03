@@ -5,6 +5,7 @@
   --accent-soft: rgba(8, 102, 255, 0.1);
   --danger: #e41e3f;
   --success: #12845a;
+  --warning: #b45309;
   --severity-critical: #d9173a;
   --severity-high: #c2410c;
   --severity-medium: #f59e0b;
@@ -33,6 +34,7 @@
   :root {
     --accent-soft: rgba(56, 132, 255, 0.16);
     --success: #3ecf8e;
+    --warning: #f5a524;
     --bg: #0e0f11;
     --surface: #18191b;
     --surface-2: #242528;
@@ -759,6 +761,15 @@ button {
 
 .step--pending {
   --step-color: var(--text-2);
+}
+
+/* Finished with a qualified outcome, e.g. "No answer": neither green nor red. */
+.step--outcome {
+  --step-color: var(--warning);
+}
+
+.step--failed.step--outcome .step__marker {
+  background: var(--surface-2);
 }
 
 .step__marker {

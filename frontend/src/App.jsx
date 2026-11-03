@@ -17,6 +17,19 @@ export default function App() {
   const { capturedCount, sentCount, lastFrame } = useFrameCapture(camera.videoRef, isLive, agent.refresh);
   const { profile, save: saveProfile } = useProfile();
 
+  // Mock mode only: "Simulate hazard" starts the camera first, like the Start camera button.
+  // start() handles denial/errors itself, so the simulation runs either way.
+  const { simulate } = agent;
+  const { status: cameraStatus, start: startCamera } = camera;
+  const simulateWithCamera = useCallback(
+    async (type) => {
+      if (cameraStatus !== 'live') await startCamera();
+      await simulate(type);
+    },
+    [cameraStatus, startCamera, simulate]
+  );
+  const sidebarAgent = simulate ? { ...agent, simulate: simulateWithCamera } : agent;
+
   const [messages, setMessages] = useState([]);
   const [pendingReplies, setPendingReplies] = useState(0);
 
@@ -51,7 +64,7 @@ export default function App() {
         detection={agent.detection}
       />
       <Sidebar
-        agent={agent}
+        agent={sidebarAgent}
         profile={profile}
         onSaveProfile={saveProfile}
         messages={messages}

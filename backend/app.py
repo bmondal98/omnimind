@@ -144,7 +144,7 @@ def create_app(settings: Settings | None = None, detector=None, engine=None) -> 
                 # A failed analysis must never be represented as a clear scene.
                 message = "Frame analysis failed. Check backend model configuration and try again."
                 if not settings.api_key and detector is None:
-                    message = "Set MODEL_API_KEY in backend/.env and restart the backend."
+                    message = "Set MODEL_API_KEY as an environment variable or in backend/.env and restart the backend."
                 raise HTTPException(500, message) from None
             detection = {**analysis.model_dump(), "timestamp": timestamp}
             app.state.engine.record_detection(detection)

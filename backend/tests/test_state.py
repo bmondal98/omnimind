@@ -42,7 +42,7 @@ class StateEngineTests(unittest.IsolatedAsyncioTestCase):
         ids = [step["id"] for step in escalation["steps"]]
         self.assertEqual(len(ids), len(set(ids)))
         for step in escalation["steps"]:
-            self.assertEqual(set(step), {"id", "type", "title", "message", "status", "reason", "started_at", "finished_at", "transcript"})
+            self.assertEqual(set(step), {"id", "type", "title", "message", "status", "reason", "started_at", "finished_at", "transcript", "outcome_label"})
             self.assertEqual(step["reason"] is not None, step["status"] == "failed")
             self.assertEqual(step["started_at"] is None, step["status"] == "pending")
             self.assertEqual(step["finished_at"] is not None, step["status"] in ("success", "failed"))
@@ -58,6 +58,10 @@ class StateEngineTests(unittest.IsolatedAsyncioTestCase):
         self.assertIsNone(state["latest_detection"])
         self.assertEqual([s["type"] for s in state["escalation"]["steps"]], ["hazard_detected", "alert_owner", "call_owner", "dispatch_emergency"])
         self.assertIn("No real service was contacted", state["escalation"]["steps"][-1]["message"])
+        # Unanswered owner call keeps status "success" but is labelled "No answer".
+        labels = {s["type"]: s["outcome_label"] for s in state["escalation"]["steps"]}
+        self.assertEqual(labels, {"hazard_detected": None, "alert_owner": None, "call_owner": "No answer", "dispatch_emergency": None})
+        self.assertEqual(state["escalation"]["steps"][2]["status"], "success")
 
     async def test_pending_ack_cancels_all_future_steps_and_is_idempotent(self):
         self.engine.record_detection(detection())
@@ -80,6 +84,7 @@ class StateEngineTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(interrupted["status"], "failed")
         self.assertEqual(interrupted["reason"], "Stopped: owner confirmed safe.")
         self.assertIsNone(interrupted["transcript"])
+        self.assertIsNone(interrupted["outcome_label"])
         await asyncio.sleep(0.40)
         self.assertEqual(self.engine.snapshot()["escalation"], stopped["escalation"])
 
@@ -152,6 +157,9 @@ class StateEngineTests(unittest.IsolatedAsyncioTestCase):
         third_contact = await self.wait_for(lambda s: len(s["escalation"]["steps"]) == 6 and s["escalation"]["steps"][-1]["status"] == "pending")
         self.assert_contract(third_contact)
         self.assertEqual(third_contact["escalation"]["steps"][-2]["status"], "success")
+        self.assertEqual(third_contact["escalation"]["steps"][-2]["outcome_label"], "Answered, can't come")
+        # The first contact's failure keeps the default "Failed" label.
+        self.assertIsNone(third_contact["escalation"]["steps"][-3]["outcome_label"])
         self.assertIn("Omar cannot arrive in time", third_contact["escalation"]["steps"][-1]["message"])
         self.assertIn("Jo", third_contact["escalation"]["steps"][-1]["message"])
         final = await self.wait_for(lambda s: s["status"] == "resolved")

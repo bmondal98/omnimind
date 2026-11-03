@@ -88,6 +88,26 @@ Default severity per hazard, as used by the mock. The backend may change it case
 | `transcript` | array or null | Simulated call or SMS text. `null` if there is none, e.g. for `hazard_detected`. |
 | `transcript[].speaker` | string | Free text, e.g. `"OmniMind"`, `"OmniMind (SMS)"`, `"Dispatcher"`, `"System"` |
 | `transcript[].text` | string | |
+| `outcome_label` | string or null | Optional short label that replaces the default status label ("Done", "Failed") in the UI, shown in a neutral amber tone. Use it when `status` alone reads wrong, e.g. `"No answer"` for an owner call that finished (`success`) but nobody picked up, or `"Answered, can't come"` for a contact who answered but can't help in time. Set it when the step finishes; `null` otherwise. It never changes `status`. |
+
+Example of a finished step with an outcome label:
+
+```json
+{
+  "id": "step_3",
+  "type": "call_owner",
+  "title": "Call owner",
+  "message": "Nobody picked up. Voicemail left.",
+  "status": "success",
+  "reason": null,
+  "started_at": "2026-10-31T14:14:17.120Z",
+  "finished_at": "2026-10-31T14:14:22.120Z",
+  "transcript": [
+    { "speaker": "OmniMind", "text": "Hello Ahmad, this is OmniMind. ..." }
+  ],
+  "outcome_label": "No answer"
+}
+```
 
 The list holds at most one `pending` step and at most one `in_progress` step, never both at once.
 
@@ -181,7 +201,8 @@ Returns the agent state. No parameters.
         "reason": null,
         "started_at": "2026-10-31T14:14:03.120Z",
         "finished_at": "2026-10-31T14:14:03.120Z",
-        "transcript": null
+        "transcript": null,
+        "outcome_label": null
       },
       {
         "id": "step_2",
@@ -194,7 +215,8 @@ Returns the agent state. No parameters.
         "finished_at": "2026-10-31T14:14:09.120Z",
         "transcript": [
           { "speaker": "OmniMind (SMS)", "text": "OmniMind alert: A possible fall was detected in the living room at 2:14 PM. Reply OK or tap \"I'm OK\" if you are safe." }
-        ]
+        ],
+        "outcome_label": null
       },
       {
         "id": "step_3",
@@ -207,7 +229,8 @@ Returns the agent state. No parameters.
         "finished_at": "2026-10-31T14:14:22.120Z",
         "transcript": [
           { "speaker": "OmniMind", "text": "Hello Ahmad, this is OmniMind. A possible fall was detected in the living room at 2:14 PM. Please confirm you are safe, or I will contact your emergency contacts." }
-        ]
+        ],
+        "outcome_label": "No answer"
       },
       {
         "id": "step_4",
@@ -220,7 +243,8 @@ Returns the agent state. No parameters.
         "finished_at": "2026-10-31T14:14:35.120Z",
         "transcript": [
           { "speaker": "System", "text": "Ringing… no answer after 6 rings. Call ended." }
-        ]
+        ],
+        "outcome_label": null
       },
       {
         "id": "step_5",
@@ -231,7 +255,8 @@ Returns the agent state. No parameters.
         "reason": null,
         "started_at": null,
         "finished_at": null,
-        "transcript": null
+        "transcript": null,
+        "outcome_label": null
       }
     ]
   }
@@ -263,7 +288,8 @@ Returns the agent state. No parameters.
         "reason": null,
         "started_at": "2026-10-31T14:14:41.500Z",
         "finished_at": "2026-10-31T14:14:41.500Z",
-        "transcript": null
+        "transcript": null,
+        "outcome_label": null
       }
     ]
   }
@@ -288,6 +314,8 @@ Answers a question from the Ask tab.
 |---|---|---|
 | `text` | text | Always sent. Typed text or speech transcript. Empty string when speech recognition wasn't available; then use `audio`. |
 | `audio` | file | Optional. Browser recording, usually `audio/webm` (Chrome, Firefox) or `audio/mp4` (Safari). |
+
+**Audio limitation.** When `text` is non-empty, the backend answers from `text` and ignores `audio`. A voice-only request (empty `text`) is answered from `audio` only if it is **MP3 or WAV**. WebM and MP4 recordings are not transcoded and return `400` with an `{ "error": … }` body. So the frontend should always send the browser's speech transcript as `text` and treat `audio` as optional. If speech recognition is unavailable and the browser records WebM/MP4, expect a `400`.
 
 **Response:**
 
@@ -342,11 +370,11 @@ The backend runs this on its own timers once a frame shows a hazard. The default
 |---|---|---|---|
 | `hazard_detected` | none | instant | Added as `success` when the hazard is found |
 | `alert_owner` | 4 s | 2 s | `success`: alert delivered, no reply |
-| `call_owner` | 8 s | 5 s | `success`: no pick-up, voicemail left |
-| `contact_person`, once per profile contact in order | 8 s each | 5 s each | First contact: `failed`, no answer. Later contacts: `success`, but too far away. |
+| `call_owner` | 8 s | 5 s | `success` with `outcome_label: "No answer"`: no pick-up, voicemail left |
+| `contact_person`, once per profile contact in order | 8 s each | 5 s each | First contact: `failed`, no answer (`outcome_label: null`, shown as "Failed"). Later contacts: `success` with `outcome_label: "Answered, can't come"`, too far away. |
 | `dispatch_emergency` | 8 s | 4 s | `success`, then `status` becomes `resolved` with `resolution: "emergency_dispatched"` |
 
-**Step lifecycle.** When a step finishes, append the next one as `pending` and set `next_action`. Set the pending step's `message` to explain the decision. When the wait ends, set the step to `in_progress`, set `started_at`, clear `next_action` and update `message`. When it finishes, set `success` or `failed`, set `finished_at`, and fill in `transcript`.
+**Step lifecycle.** When a step finishes, append the next one as `pending` and set `next_action`. Set the pending step's `message` to explain the decision. When the wait ends, set the step to `in_progress`, set `started_at`, clear `next_action` and update `message`. When it finishes, set `success` or `failed`, set `finished_at`, fill in `transcript`, and set `outcome_label` if the default status label would read wrong.
 
 **Recovery.** A `failed` step never ends the escalation. Record the `reason`, then move to the next option, and say so in the next step's `message`, e.g. `"Sarah didn't answer. Trying the next option: Omar."` With no contacts on file, go straight from `call_owner` to `dispatch_emergency`.
 

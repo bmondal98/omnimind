@@ -86,9 +86,11 @@ function Countdown({ nextAction, clockOffsetMs }) {
 function TimelineStep({ step }) {
   const Icon = STEP_ICONS[step.type] ?? CheckIcon;
   const time = step.finished_at || step.started_at;
+  // e.g. "No answer": a step that finished, but not the way anyone hoped.
+  const outcomeLabel = step.outcome_label;
 
   return (
-    <li className={`step step--${step.status}`}>
+    <li className={`step step--${step.status}${outcomeLabel ? ' step--outcome' : ''}`}>
       <div className="step__marker">
         {step.status === 'in_progress' ? (
           <span className="spinner spinner--sm" aria-hidden="true" />
@@ -103,7 +105,7 @@ function TimelineStep({ step }) {
           <h3>{step.title}</h3>
           {time && <time dateTime={time}>{formatTime(time)}</time>}
         </div>
-        <span className="step__status">{STEP_STATUS_LABELS[step.status] ?? step.status}</span>
+        <span className="step__status">{outcomeLabel || (STEP_STATUS_LABELS[step.status] ?? step.status)}</span>
         {step.message && <p className="step__message">{step.message}</p>}
         {step.status === 'failed' && step.reason && <p className="step__reason">{step.reason}</p>}
         {step.transcript?.length > 0 && (

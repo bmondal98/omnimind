@@ -17,11 +17,35 @@ test -f backend/.env || cp backend/.env.example backend/.env
 chmod 600 backend/.env
 ```
 
-Set `MODEL_API_KEY` in **`backend/.env` only**. This file is git-ignored; the
-example file contains no key. The default provider is `https://api.meta.ai/v1`
-and model is `muse-spark-1.3`. Change `MODEL_API_BASE_URL` or `MODEL_API_MODEL` in
-that same file if your account uses a different endpoint/model. Restart the
-server after editing configuration. No API key is needed in the frontend.
+For local development, set `MODEL_API_KEY` in `backend/.env`. This file is
+git-ignored; the example file contains no key. The default provider is
+`https://api.meta.ai/v1` and model is `muse-spark-1.3`. Change `MODEL_API_BASE_URL`
+or `MODEL_API_MODEL` in that same file if your account uses a different
+endpoint/model. Restart the server after editing configuration. No API key is
+needed in the frontend.
+
+### Configuration precedence
+
+Each setting (`MODEL_API_KEY`, `MODEL_API_BASE_URL`, `MODEL_API_MODEL`,
+`CORS_ORIGINS`) is read from a real **environment variable first**, then from
+`backend/.env`, then the built-in default. An environment variable that is set
+but empty counts as unset. `backend/.env` is optional, so a host with no file
+works as long as the variables are set.
+
+## Deploy (Render / Railway)
+
+1. Set the build command to `pip install -r backend/requirements.txt` and run it
+   from the repository root.
+2. Set the start command to
+   `python -m uvicorn backend.app:app --host 0.0.0.0 --port $PORT --workers 1`.
+   The host provides `PORT`. Run one worker, because state is in memory.
+3. Add `MODEL_API_KEY` (and optionally `MODEL_API_MODEL`, `MODEL_API_BASE_URL`)
+   as environment variables or secrets in the host's dashboard. Do not commit a
+   `backend/.env`.
+4. Set `CORS_ORIGINS` to the deployed frontend's origin, e.g.
+   `https://omnimind.example.com` (comma-separated for several).
+5. Point the frontend at it with `VITE_API_URL=https://your-backend.onrender.com`
+   (no `/api` suffix).
 
 This workspace already has the virtual environment and dependencies installed.
 Start the backend from the repository root:
@@ -64,7 +88,7 @@ No `/api` suffix. `Simulate hazard` belongs to mock mode and disappears when
 using the real backend; start the camera to submit actual frames. CORS allows
 all origins by default, without cookies/credentials. To restrict it, set
 `CORS_ORIGINS=http://localhost:5173,https://your-frontend.example` in `backend/.env`
-and restart.
+(or as an environment variable) and restart.
 
 ## Endpoints and behavior
 

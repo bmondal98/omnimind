@@ -81,6 +81,7 @@ function addStep(fields) {
     started_at: null,
     finished_at: null,
     transcript: null,
+    outcome_label: null,
     ...fields,
   };
   escalation.steps.push(step);
@@ -120,6 +121,7 @@ function buildPlan(type) {
       outcome: {
         status: 'success',
         message: 'Nobody picked up. Voicemail left.',
+        outcome_label: 'No answer',
         transcript: [
           { speaker: 'OmniMind', text: `Hello ${owner}, this is OmniMind. ${message}. Please confirm you are safe, or I will contact your emergency contacts.` },
         ],
@@ -151,6 +153,7 @@ function buildPlan(type) {
         : {
             status: 'success',
             message: `${contact.name} answered, but is 25 minutes away.`,
+            outcome_label: "Answered, can't come",
             transcript: [
               { speaker: 'OmniMind', text: `${intro} The address is ${address}. Can you get there now?` },
               { speaker: contact.name, text: "I'm 25 minutes away. I'm leaving now, but please send help." },
