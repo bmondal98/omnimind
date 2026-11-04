@@ -226,6 +226,19 @@ async function runEscalation(type, run) {
   finish('emergency_dispatched');
 }
 
+// Back to a fresh mock: cancels any running escalation (see runEscalation) and clears history.
+// The saved profile is kept.
+export function reset() {
+  if (activeRun) clearTimeout(activeRun.timer);
+  clearTimeout(resolvedTimer);
+  activeRun = null;
+  resolvedTimer = null;
+  phase = null;
+  latestDetection = null;
+  escalation = null;
+  lastFrameAt = 0;
+}
+
 export async function simulateHazard(type) {
   await wait(MOCK_REQUEST_DELAY_MS);
   const scenario = SCENARIOS[type];

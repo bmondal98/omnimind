@@ -140,8 +140,9 @@ export default function AgentPanel({ agent }) {
         <StatusCard agent={agent} />
 
         {isUnreachable && (
-          <p className="agent__error" role="alert">
-            Can't reach the OmniMind backend. The status shown may be out of date.
+          <p className="agent__waking" role="status">
+            <span className="spinner spinner--sm" aria-hidden="true" />
+            Waking up the backend, this can take up to a minute…
           </p>
         )}
 

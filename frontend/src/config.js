@@ -1,8 +1,12 @@
 // Central tuning knobs for the frontend.
 
-// Backend connection (see docs/API.md). The mock runs unless VITE_USE_MOCK=false.
-export const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/+$/, '');
-export const USE_MOCK = import.meta.env.VITE_USE_MOCK !== 'false';
+// Backend connection (see docs/API.md). Demo vs Live is chosen at runtime (see mode.js);
+// Live is only offered when VITE_API_URL was set at build time.
+export const HAS_BACKEND = Boolean(import.meta.env.VITE_API_URL);
+export const API_URL = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '');
+
+// Live mode: while the backend is unreachable (e.g. a free host waking up), retry this often.
+export const BACKEND_RETRY_MS = 3000;
 
 // Request timeouts, so a hung backend can't stall frame sending or polling.
 export const REQUEST_TIMEOUT_MS = 30000;

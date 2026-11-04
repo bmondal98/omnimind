@@ -1560,3 +1560,61 @@ button {
     opacity: 0.25;
   }
 }
+
+/* ---------- Demo | Live mode switch ---------- */
+.sidebar__actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.mode-switch {
+  display: inline-flex;
+  padding: 2px;
+  border-radius: 999px;
+  background: var(--surface-2);
+}
+
+.mode-switch__option {
+  height: 26px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 600;
+  transition: background-color 0.2s var(--ease), color 0.2s var(--ease);
+}
+
+.mode-switch__option:hover {
+  color: var(--text);
+}
+
+.mode-switch__option.is-active {
+  background: var(--surface);
+  color: var(--accent);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.mode-switch__option[aria-disabled='true'] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.mode-switch__option[aria-disabled='true']:hover {
+  color: var(--text-2);
+}
+
+/* Live mode: backend asleep or unreachable, still retrying. */
+.agent__waking {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  color: var(--text);
+  font-size: 13px;
+}

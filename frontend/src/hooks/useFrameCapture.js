@@ -8,7 +8,6 @@ import {
   SCENE_DIFF_HEIGHT,
   SCENE_DIFF_WIDTH,
 } from '../config.js';
-import { sendFrame } from '../api.js';
 
 // Downscaled grayscale copy of the current video frame, for scene comparison.
 function readSignature(ctx, video) {
@@ -31,18 +30,21 @@ function meanAbsoluteDifference(a, b) {
  * While `isActive`, grabs a JPEG frame from the video every FRAME_INTERVAL_MS via an
  * offscreen canvas. A frame goes to sendFrame() only if the scene changed since the last
  * sent frame, or the heartbeat is due. onFrameSent runs after each successful send.
+ * `sendFrame` can change (mode switch) without restarting the capture loop.
  * Returns the captured and sent counts and a preview of the latest frame.
  */
-export function useFrameCapture(videoRef, isActive, onFrameSent) {
+export function useFrameCapture(videoRef, isActive, sendFrame, onFrameSent) {
   const canvasRef = useRef(null);
   const previewUrlRef = useRef(null);
   const onFrameSentRef = useRef(onFrameSent);
+  const sendFrameRef = useRef(sendFrame);
   const [capturedCount, setCapturedCount] = useState(0);
   const [sentCount, setSentCount] = useState(0);
   const [lastFrame, setLastFrame] = useState(null); // { url, width, height, sizeKB, timestamp }
 
   useEffect(() => {
     onFrameSentRef.current = onFrameSent;
+    sendFrameRef.current = sendFrame;
   });
 
   useEffect(() => {
@@ -67,7 +69,7 @@ export function useFrameCapture(videoRef, isActive, onFrameSent) {
       sending = true;
       lastSentSignature = signature;
       lastSentAt = Date.now();
-      sendFrame(blob, timestamp)
+      sendFrameRef.current(blob, timestamp)
         .then(() => {
           if (cancelled) return;
           setSentCount((n) => n + 1);

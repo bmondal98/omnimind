@@ -1,6 +1,6 @@
 // Backend integration points. The contract is specified in docs/API.md.
 // The rest of the app imports only from this file, real or mock alike.
-import { API_URL, REQUEST_TIMEOUT_MS, STATE_REQUEST_TIMEOUT_MS, USE_MOCK } from './config.js';
+import { API_URL, REQUEST_TIMEOUT_MS, STATE_REQUEST_TIMEOUT_MS } from './config.js';
 import * as mock from './mockApi.js';
 
 async function request(path, { timeoutMs = REQUEST_TIMEOUT_MS, ...init } = {}) {
@@ -65,9 +65,25 @@ const real = {
   },
 };
 
-const impl = USE_MOCK ? mock : real;
+const demoApi = {
+  sendFrame: mock.sendFrame,
+  getState: mock.getState,
+  ack: mock.ack,
+  askQuestion: mock.askQuestion,
+  saveProfile: mock.saveProfile,
+  // Demo capability: start a simulated hazard. Null when the backend has no such thing.
+  simulateHazard: mock.simulateHazard,
+};
 
-export const { sendFrame, getState, ack, askQuestion, saveProfile } = impl;
+const liveApi = { ...real, simulateHazard: null };
 
-// Demo capability: start a simulated hazard. Null when the backend has no such thing.
-export const simulateHazard = USE_MOCK ? mock.simulateHazard : null;
+/**
+ * The API for a mode ('demo' | 'live'). Always the same object per mode, so it is safe
+ * as a hook dependency.
+ */
+export function getApi(mode) {
+  return mode === 'live' ? liveApi : demoApi;
+}
+
+// Stop any running mock escalation and clear its history, so a mode switch starts clean.
+export const resetDemo = mock.reset;

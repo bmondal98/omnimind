@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import AgentPanel from './AgentPanel.jsx';
 import ChatSidebar from './ChatSidebar.jsx';
+import ModeSwitch from './ModeSwitch.jsx';
 import ProfilePanel from './ProfilePanel.jsx';
 import { SettingsIcon } from './Icons.jsx';
 
@@ -9,7 +10,7 @@ const TABS = [
   { id: 'ask', label: 'Ask' },
 ];
 
-export default function Sidebar({ agent, profile, onSaveProfile, messages, isThinking, onSend }) {
+export default function Sidebar({ mode, onModeChange, agent, profile, onSaveProfile, messages, isThinking, onSend }) {
   const [tab, setTab] = useState('agent');
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
@@ -27,15 +28,18 @@ export default function Sidebar({ agent, profile, onSaveProfile, messages, isThi
           <h1>OmniMind</h1>
           <p>Your AI home-safety agent</p>
         </div>
-        <button
-          type="button"
-          className="icon-button"
-          onClick={() => setIsProfileOpen(true)}
-          aria-label="Home profile"
-          title="Home profile"
-        >
-          <SettingsIcon />
-        </button>
+        <div className="sidebar__actions">
+          <ModeSwitch mode={mode} onChange={onModeChange} />
+          <button
+            type="button"
+            className="icon-button"
+            onClick={() => setIsProfileOpen(true)}
+            aria-label="Home profile"
+            title="Home profile"
+          >
+            <SettingsIcon />
+          </button>
+        </div>
       </header>
 
       <div className="tabs" role="tablist" aria-label="Sidebar">

@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
 import { DEMO_PROFILE, PROFILE_STORAGE_KEY } from '../config.js';
-import { saveProfile } from '../api.js';
 
 function loadProfile() {
   try {
@@ -14,27 +13,32 @@ function loadProfile() {
 }
 
 /**
- * The home profile ("Active Memory"), kept in localStorage and sent to the backend.
+ * The home profile ("Active Memory"), kept in localStorage and sent to the backend (`api`).
  * `save` rejects if the backend couldn't be reached; the local copy is kept regardless.
  */
-export function useProfile() {
+export function useProfile(api, isReachable) {
   const [profile, setProfile] = useState(loadProfile);
 
-  // The backend may have restarted since the last visit, so sync once on load.
+  // Sync on load, on a mode switch, and when a sleeping backend comes back: it may have
+  // restarted without the profile.
   useEffect(() => {
-    saveProfile(profile).catch((err) => console.error('[profile] initial sync failed', err));
+    if (!isReachable) return;
+    api.saveProfile(profile).catch((err) => console.error('[profile] sync failed', err));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [api, isReachable]);
 
-  const save = useCallback(async (next) => {
-    setProfile(next);
-    try {
-      localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(next));
-    } catch (err) {
-      console.warn('[profile] could not store profile', err);
-    }
-    await saveProfile(next);
-  }, []);
+  const save = useCallback(
+    async (next) => {
+      setProfile(next);
+      try {
+        localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(next));
+      } catch (err) {
+        console.warn('[profile] could not store profile', err);
+      }
+      await api.saveProfile(next);
+    },
+    [api]
+  );
 
   return { profile, save };
 }
