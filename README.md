@@ -18,7 +18,7 @@
   <img alt="FastAPI" src="https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white">
 </p>
 
-### [▶ Live demo](https://omnimind-eta.vercel.app) &nbsp;·&nbsp; 🎬 Demo video (TBD)
+### [▶ Live demo](https://omnimind-eta.vercel.app) &nbsp;·&nbsp; [🎬 Demo video](https://youtu.be/TY-tcXEThG4)
 
 Try it with no API key: open the live demo and press **Simulate hazard**.
 
